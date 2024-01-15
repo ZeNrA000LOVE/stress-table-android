@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "stress-table-android"
 include(":app")
+include(":core")
