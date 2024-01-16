@@ -15,6 +15,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.core.navigaton.NavGraph
 import com.example.stress_table_android.ui.theme.StresstableandroidTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,20 +25,11 @@ class MainActivity : ComponentActivity() {
             StresstableandroidTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
+                    DisplayNav()
                 }
             }
         }
     }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-    DisplayNav()
 }
 
 @Composable
@@ -48,13 +40,13 @@ fun DisplayNav() {
     // startDestinationは最初に表示するページ
     // startDestinationは最初に表示するページ
     NavHost(navController = navController,
-        startDestination = "First Screen") {
+        startDestination = NavGraph.first) {
         // 最初に表示するページ
-        composable(route = "First Screen") {
+        composable(route = NavGraph.first) {
             FirstScreen(navController = navController)
         }
         // 2番目に表示するページ
-        composable(route = "Second Screen") {
+        composable(route = NavGraph.second) {
             SecondScreen(navController = navController)
         }
     }
@@ -62,14 +54,14 @@ fun DisplayNav() {
 
 @Composable
 fun FirstScreen(navController: NavController) {
-    Button(onClick = { navController.navigate("Second Screen") }) {
+    Button(onClick = { navController.navigate(NavGraph.second) }) {
         Text(text = "Go to 2nd Screen")
     }
 }
 
 @Composable
 fun SecondScreen(navController: NavController) {
-    Button(onClick = { navController.navigate("First Screen")}) {
+    Button(onClick = { navController.navigate(NavGraph.first)}) {
         Text(text = "Go to 1st Screen")
     }
 }
@@ -78,6 +70,6 @@ fun SecondScreen(navController: NavController) {
 @Composable
 fun GreetingPreview() {
     StresstableandroidTheme {
-        Greeting("Android")
+
     }
 }
