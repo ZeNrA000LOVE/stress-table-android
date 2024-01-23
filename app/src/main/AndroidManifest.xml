@@ -14,9 +14,10 @@
         android:theme="@style/Theme.Stresstableandroid"
         tools:targetApi="31" >
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize"
             android:theme="@style/Theme.Stresstableandroid" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
