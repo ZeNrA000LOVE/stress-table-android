@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -6,6 +8,27 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            val properties = Properties()
+            keyAlias = "alias_name"
+            keyPassword = "stress1"
+            runCatching {
+                storeFile = rootProject.file("my-release-key.keystore")
+            }
+            storePassword = "stress1"
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+        }
+        release {
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
     namespace = "com.example.stress_table_android"
     compileSdk = 34
 
