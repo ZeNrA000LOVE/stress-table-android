@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -117,9 +118,12 @@ fun FirstScreen(navController: NavController) {
             Modifier.weight(1f)
         ) {
             items(uiState.stressTextList) {
-                ListItemWithButton(it, uiState) {
-                    viewModel
-                }
+                ListItemWithButton(
+                    it,
+                    uiState,
+                    { viewModel.onTextSelected(it.text) },
+                    viewModel::onTypeSelected
+                )
             }
         }
         Button(onClick = { navController.navigate(NavGraph.second) }) {
@@ -135,23 +139,28 @@ fun FirstScreen(navController: NavController) {
 
 @Composable
 fun SelectButtons(
+    stress: Stress,
     uiState: MainUiState,
-    onTypeSelected: () -> Unit
+    onTypeSelected: (ButtonType) -> Unit
 ) {
     AnimatedVisibility(
-        visible = true,
+        visible = stress.text == uiState.selectText,
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        Row {
-            ButtonType.entries.forEach {
-                Button(
-                    onClick = onTypeSelected,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .weight(1f)
-                ) {
-                    Text(text = it.text)
+        Column {
+            Divider()
+            Row {
+                ButtonType.entries.forEach {
+                    Button(
+                        onClick = { onTypeSelected(it) },
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(1f),
+                        colors = if (stress.type == it) ButtonDefaults.buttonColors() else ButtonDefaults.elevatedButtonColors()
+                    ) {
+                        Text(text = it.text)
+                    }
                 }
             }
         }
@@ -167,9 +176,10 @@ fun SecondScreen(navController: NavController) {
 
 @Composable
 fun ListItemWithButton(
-    text: String,
+    stress: Stress,
     uiState: MainUiState,
-    onTypeSelected: () -> Unit
+    onTextSelected: () -> Unit,
+    onTypeSelected: (ButtonType) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -184,17 +194,17 @@ fun ListItemWithButton(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = text,
+                text = stress.text,
                 modifier = Modifier.weight(1f)
             )
             IconButton(
                 modifier = Modifier.padding(start = 8.dp),
-                onClick = { /* doSomething() */ }) {
+                onClick = onTextSelected
+            ) {
                 Icon(Icons.Filled.Menu, contentDescription = null)
             }
         }
-        Divider()
-        SelectButtons(uiState, onTypeSelected)
+        SelectButtons(stress, uiState, onTypeSelected)
     }
 }
 

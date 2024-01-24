@@ -23,7 +23,20 @@ class MainViewModel @Inject constructor(
     fun addText() {
         uiState = uiState.copy(
             text = "",
-            stressTextList = uiState.stressTextList + uiState.text
+            stressTextList = uiState.stressTextList + Stress(uiState.text)
+        )
+    }
+
+    fun onTextSelected(selectText: String) {
+        uiState = uiState.copy(selectText = selectText)
+    }
+
+    fun onTypeSelected(type: ButtonType) {
+        val newList = uiState.stressTextList.map {
+            if (it.text == uiState.selectText) Stress(uiState.selectText, type) else it
+        }
+        uiState = uiState.copy(
+            stressTextList = newList
         )
     }
 }
