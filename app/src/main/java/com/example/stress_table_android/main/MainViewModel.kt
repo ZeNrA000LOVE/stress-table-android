@@ -19,4 +19,11 @@ class MainViewModel @Inject constructor(
     fun onValueChange(text: String) {
         uiState = uiState.copy(text = text)
     }
+
+    fun addText() {
+        uiState = uiState.copy(
+            text = "",
+            stressTextList = uiState.stressTextList + uiState.text
+        )
+    }
 }

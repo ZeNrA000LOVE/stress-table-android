@@ -3,6 +3,10 @@ package com.example.stress_table_android.main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,7 +28,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -81,8 +88,10 @@ fun DisplayNav() {
     // NavHostを作成
     // startDestinationは最初に表示するページ
     // startDestinationは最初に表示するページ
-    NavHost(navController = navController,
-        startDestination = NavGraph.first) {
+    NavHost(
+        navController = navController,
+        startDestination = NavGraph.first
+    ) {
         // 最初に表示するページ
         composable(route = NavGraph.first) {
             FirstScreen(navController = navController)
@@ -108,10 +117,8 @@ fun FirstScreen(navController: NavController) {
             Modifier.weight(1f)
         ) {
             items(uiState.stressTextList) {
-                Column(
-                    Modifier.fillMaxWidth()
-                ) {
-                    Text(text = it)
+                ListItemWithButton(it, uiState) {
+                    viewModel
                 }
             }
         }
@@ -119,28 +126,89 @@ fun FirstScreen(navController: NavController) {
             Text(text = "Go to 2nd Screen")
         }
         SendIconTextField(
-            uiState
-        ) {
-            viewModel.onValueChange(it)
+            uiState,
+            onValueChange = viewModel::onValueChange,
+            onSendText = viewModel::addText
+        )
+    }
+}
+
+@Composable
+fun SelectButtons(
+    uiState: MainUiState,
+    onTypeSelected: () -> Unit
+) {
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        Row {
+            ButtonType.entries.forEach {
+                Button(
+                    onClick = onTypeSelected,
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .weight(1f)
+                ) {
+                    Text(text = it.text)
+                }
+            }
         }
     }
 }
 
 @Composable
 fun SecondScreen(navController: NavController) {
-    Button(onClick = { navController.navigate(NavGraph.first)}) {
+    Button(onClick = { navController.navigate(NavGraph.first) }) {
         Text(text = "Go to 1st Screen")
+    }
+}
+
+@Composable
+fun ListItemWithButton(
+    text: String,
+    uiState: MainUiState,
+    onTypeSelected: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(top = 8.dp)
+            .fillMaxWidth()
+            .border(1.dp, Color.Gray)
+            .padding(16.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = text,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(
+                modifier = Modifier.padding(start = 8.dp),
+                onClick = { /* doSomething() */ }) {
+                Icon(Icons.Filled.Menu, contentDescription = null)
+            }
+        }
+        Divider()
+        SelectButtons(uiState, onTypeSelected)
     }
 }
 
 @Composable
 fun SendIconTextField(
     uiState: MainUiState,
-    onValueChange: (String) -> Unit
+    onValueChange: (String) -> Unit,
+    onSendText: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End
+        modifier = Modifier
+            .padding(bottom = 24.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
         TextField(
             value = uiState.text,
@@ -148,7 +216,7 @@ fun SendIconTextField(
             modifier = Modifier.weight(1f)
         )
         Button(
-            onClick = { /* 送信ボタンが押された時の処理 */ }
+            onClick = onSendText
         ) {
             Text("送信")
         }
