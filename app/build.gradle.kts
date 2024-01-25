@@ -1,4 +1,6 @@
-import org.jetbrains.kotlin.konan.properties.Properties
+
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -11,12 +13,17 @@ android {
     signingConfigs {
         create("release") {
             val properties = Properties()
-            keyAlias = "alias_name"
-            keyPassword = "stress1"
+            val localProperties = project.rootProject.file("local.properties")
+            if (localProperties.exists()) {
+                properties.load(FileInputStream(localProperties))
+            }
+
+            keyAlias = properties.getProperty("releaseKeyAlias")
+            keyPassword = properties.getProperty("releaseKeyPassword")
             runCatching {
                 storeFile = rootProject.file("my-release-key.keystore")
             }
-            storePassword = "stress1"
+            storePassword = properties.getProperty("releaseStorePassword")
         }
     }
 
