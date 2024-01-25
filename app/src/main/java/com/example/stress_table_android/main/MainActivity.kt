@@ -16,7 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,17 +30,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.core.navigaton.NavGraph
+import com.example.stress_table_android.R
 import com.example.stress_table_android.ui.theme.StresstableandroidTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -49,19 +53,31 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
+            val currentBackStack by navController.currentBackStackEntryAsState()
+            val current = currentBackStack?.destination?.route
+
             StresstableandroidTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text(text = "Title") },
+                            title = { Text(text = "StressTable") },
                             navigationIcon = {
-                                IconButton(onClick = { /* doSomething() */ }) {
-                                    Icon(Icons.Filled.Menu, contentDescription = null)
+                                when (current) {
+                                    NavGraph.description -> {
+                                        IconButton(onClick = { navController.popBackStack() }) {
+                                            Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                                        }
+                                    }
                                 }
                             },
                             actions = {
-                                IconButton(onClick = { /* doSomething() */ }) {
-                                    Icon(Icons.Filled.Favorite, contentDescription = null)
+                                when (current) {
+                                    NavGraph.main -> {
+                                        IconButton(onClick = { navController.navigate(NavGraph.description) }) {
+                                            Icon(Icons.Filled.Add, contentDescription = null)
+                                        }
+                                    }
                                 }
                             }
                         )
@@ -73,7 +89,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(innerPadding)
                                 .fillMaxSize()
                         ) {
-                            DisplayNav()
+                            DisplayNav(navController)
                         }
                     }
                 )
@@ -83,29 +99,26 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun DisplayNav() {
-    // navControllerを作成
-    val navController = rememberNavController()
-    // NavHostを作成
-    // startDestinationは最初に表示するページ
-    // startDestinationは最初に表示するページ
+fun DisplayNav(
+    navController: NavHostController
+) {
     NavHost(
         navController = navController,
-        startDestination = NavGraph.first
+        startDestination = NavGraph.main
     ) {
         // 最初に表示するページ
-        composable(route = NavGraph.first) {
-            FirstScreen(navController = navController)
+        composable(route = NavGraph.main) {
+            MainScreen()
         }
         // 2番目に表示するページ
-        composable(route = NavGraph.second) {
-            SecondScreen(navController = navController)
+        composable(route = NavGraph.description) {
+            DescriptionScreen()
         }
     }
 }
 
 @Composable
-fun FirstScreen(navController: NavController) {
+fun MainScreen() {
     val viewModel: MainViewModel = hiltViewModel()
     val uiState = viewModel.uiState
 
@@ -126,9 +139,6 @@ fun FirstScreen(navController: NavController) {
                 )
             }
         }
-        Button(onClick = { navController.navigate(NavGraph.second) }) {
-            Text(text = "Go to 2nd Screen")
-        }
         SendIconTextField(
             uiState,
             onValueChange = viewModel::onValueChange,
@@ -136,6 +146,8 @@ fun FirstScreen(navController: NavController) {
         )
     }
 }
+
+
 
 @Composable
 fun SelectButtons(
@@ -168,10 +180,8 @@ fun SelectButtons(
 }
 
 @Composable
-fun SecondScreen(navController: NavController) {
-    Button(onClick = { navController.navigate(NavGraph.first) }) {
-        Text(text = "Go to 1st Screen")
-    }
+fun DescriptionScreen() {
+    Text(text = stringResource(R.string.description))
 }
 
 @Composable
@@ -230,13 +240,5 @@ fun SendIconTextField(
         ) {
             Text("送信")
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    StresstableandroidTheme {
-        DisplayNav()
     }
 }

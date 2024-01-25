@@ -2,12 +2,12 @@ package com.example.core.navigaton
 
 object NavGraph  {
 
-    const val first = DestinationId.first
-    const val second = DestinationId.second
+    const val main = DestinationId.main
+    const val description = DestinationId.description
 
     private object DestinationId {
-        const val first = "first"
-        const val second = "second"
+        const val main = "main"
+        const val description = "description"
     }
 }
 
